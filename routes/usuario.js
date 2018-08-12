@@ -13,7 +13,7 @@ var SEED = require('../config/config').SEED;
 app.get("/", (req, res, next) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
-    Usuario.find({},'nombre email img role')
+    Usuario.find({},'nombre email img role google')
     .skip(desde)
     .limit(5)
     .exec(
@@ -43,7 +43,7 @@ app.get("/", (req, res, next) => {
 // Actualizar usuario
 //========================================================================
 
-app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
+app.put('/:id', [mdAutenticacion.verificaToken, mdAutenticacion.verificaAdmin_o_mismousuario], (req, res) => {
     var id = req.params.id;
     var body = req.body;
     Usuario.findById(id, (err, usuario) => {
@@ -85,8 +85,9 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 // Crear un nuevo usuario
 //========================================================================  
 
-app.post("/",mdAutenticacion.verificaToken ,(req, res)=>{
+app.post("/",(req, res)=>{
     var body = req.body;
+    console.log(body);
     var usuario = new Usuario({
         nombre: body.nombre,
         email: body.email,
@@ -115,7 +116,7 @@ app.post("/",mdAutenticacion.verificaToken ,(req, res)=>{
 //========================================================================
 // Eliminar usuario por el id
 //========================================================================
-app.delete('/:id', mdAutenticacion.verificaToken,(req, res)=>{
+app.delete('/:id', [mdAutenticacion.verificaToken, mdAutenticacion.verificaAdmin],(req, res)=>{
     var id = req.params.id;
     Usuario.findByIdAndRemove(id,(err, usuarioBorrado)=>{
         if (err) {
